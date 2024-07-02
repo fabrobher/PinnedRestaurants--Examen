@@ -28,7 +28,8 @@ const indexOwner = async function (req, res) {
         include: [{
           model: RestaurantCategory,
           as: 'restaurantCategory'
-        }]
+        }],
+        order: [['pinned', 'DESC']]
       })
     res.json(restaurants)
   } catch (err) {
@@ -39,6 +40,9 @@ const indexOwner = async function (req, res) {
 const create = async function (req, res) {
   const newRestaurant = Restaurant.build(req.body)
   newRestaurant.userId = req.user.id // usuario actualmente autenticado
+
+  newRestaurant.pinnedAt = req.body.pinned ? new Date() : null
+
   try {
     const restaurant = await newRestaurant.save()
     res.json(restaurant)
@@ -95,12 +99,27 @@ const destroy = async function (req, res) {
   }
 }
 
+const togglePinned = async function (req, res) {
+  try {
+    const restaurant = await Restaurant.findByPk(req.params.restaurantId)
+    await Restaurant.update(
+      { pinnedAt: restaurant.pinnedAt ? null : new Date() },
+      { where: { id: restaurant.id } }) // utiliza el restaurant anterior
+
+    const updatedRestaurant = await Restaurant.findByPk(req.params.restaurantId)
+    res.json(updatedRestaurant)
+  } catch (err) {
+    res.status(500).send(err)
+  }
+}
+
 const RestaurantController = {
   index,
   indexOwner,
   create,
   show,
   update,
-  destroy
+  destroy,
+  togglePinned
 }
 export default RestaurantController

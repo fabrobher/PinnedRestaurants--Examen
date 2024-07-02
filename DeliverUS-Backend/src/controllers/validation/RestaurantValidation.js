@@ -12,6 +12,9 @@ const create = [
   check('email').optional({ nullable: true, checkFalsy: true }).isString().isEmail().trim(),
   check('phone').optional({ nullable: true, checkFalsy: true }).isString().isLength({ min: 1, max: 255 }).trim(),
   check('restaurantCategoryId').exists({ checkNull: true }).isInt({ min: 1 }).toInt(),
+
+  check('pinned').optional().isBoolean().toBoolean(),
+
   check('userId').not().exists(),
   check('heroImage').custom((value, { req }) => {
     return checkFileIsImage(req, 'heroImage')
@@ -31,6 +34,9 @@ const update = [
   check('description').optional({ nullable: true, checkFalsy: true }).isString().trim(),
   check('address').exists().isString().isLength({ min: 1, max: 255 }).trim(),
   check('postalCode').exists().isString().isLength({ min: 1, max: 255 }),
+
+  check('pinned').optional().isBoolean().toBoolean(),
+
   check('url').optional({ nullable: true, checkFalsy: true }).isString().isURL().trim(),
   check('shippingCosts').exists().isFloat({ min: 0 }).toFloat(),
   check('email').optional({ nullable: true, checkFalsy: true }).isString().isEmail().trim(),
